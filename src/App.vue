@@ -3,11 +3,12 @@
     <img alt="racket logo" class="logo" src="@/assets/marker-icon.png" width="125" height="125" />
 
     <div class="wrapper">
-      <HelloWorld msg="LeagueMatch.US" />
+      <HelloWorld msg="LeagueMatch" />
       
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
+        <RouterLink to="/leaderboard">Leaderboard</RouterLink>
       </nav>
     </div>
   </header>

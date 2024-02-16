@@ -7,6 +7,7 @@
 
 <script>
 import L from 'leaflet';
+import Leaderboard from '@/components/Leaderboard.vue'
 import LeaderboardPopup from '../components/LeaderboardPopup.vue';
 
 export default {
@@ -59,6 +60,7 @@ export default {
     }
   },
   components: {
+    Leaderboard,
     LeaderboardPopup
   }
 };
