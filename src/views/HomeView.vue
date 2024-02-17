@@ -1,13 +1,12 @@
 <template>
   <div>
     <div id="map"></div>
-    <LeaderboardPopup v-if="showLeaderboardPopup" :topPlayers="topPlayers" @close="closeLeaderboardPopup" />
+    <LeaderboardPopup v-if="showLeaderboardPopup" :topPlayers="topPlayers" @close="closeLeaderboardPopup" :players="players" />
   </div>
 </template>
 
 <script>
 import L from 'leaflet';
-import Leaderboard from '@/components/Leaderboard.vue'
 import LeaderboardPopup from '../components/LeaderboardPopup.vue';
 
 export default {
@@ -15,8 +14,9 @@ export default {
     return {
       map: null,
       showLeaderboardPopup: false,
-      topPlayers: [
-        // Dummy data for demonstration
+      players: [], // Player data to be loaded or generated
+      selectedPlayer: null,
+      topPlayers: [ // Dummy data for demonstration
         { id: 1, name: 'Player 1', elo: 1500, matchesPlayed: 10, wins: 5, winPercentage: '50%' },
         { id: 2, name: 'Player 2', elo: 1400, matchesPlayed: 8, wins: 4, winPercentage: '50%' },
         // Add more players as needed
@@ -57,10 +57,13 @@ export default {
     },
     closeLeaderboardPopup() {
       this.showLeaderboardPopup = false;
+    },
+    showPlayerPopup(player) {
+      this.selectedPlayer = player;
+      this.showLeaderboardPopup = true;
     }
   },
   components: {
-    Leaderboard,
     LeaderboardPopup
   }
 };
