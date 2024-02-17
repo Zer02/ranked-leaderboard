@@ -1,8 +1,10 @@
 <template>
   <div class="leaderboard">
-    <h2>Leaderboard</h2>
-    <button @click="simulateMatch">Simulate Match</button>
-    <button @click="randomizePlayers">Randomize Players</button>
+    <!-- <h2>Leaderboard</h2> -->
+    <div class="button-container">
+      <button @click="simulateMatch" class="button">Simulate Match</button>
+      <button @click="randomizePlayers" class="button">Randomize Players</button>
+    </div>
     <table>
       <thead>
         <tr>
@@ -11,7 +13,7 @@
           <th>ELO</th>
           <th>Matches Played</th>
           <th>Wins</th>
-          <th>Losses</th>
+          <!-- <th>Losses</th> -->
           <th>Win Percentage</th>
         </tr>
       </thead>
@@ -22,7 +24,7 @@
           <td>{{ player.elo }}</td>
           <td>{{ player.matchesPlayed }}</td>
           <td>{{ player.wins }}</td>
-          <td>{{ player.losses }}</td>
+          <!-- <td>{{ player.losses }}</td> -->
           <td>{{ player.winPercentage }}%</td>
         </tr>
       </tbody>
@@ -170,6 +172,23 @@ export default {
   padding: 20px;
   text-align: center;
 }
+.button-container {
+  margin-bottom: 20px;
+}
+
+.button {
+  padding: 10px 20px;
+  background-color: #2aa15e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.button:hover {
+  background-color: #007bff;
+}
 
 table {
   width: 100%;
@@ -179,22 +198,24 @@ table {
 }
 
 thead {
-  background-color: #f0f0f0;
+  background-color: black;
+  color: white;
 }
 
 th,
 td {
-  padding: 8px;
+  padding: 2px;
   border-bottom: 1px solid #ddd;
   text-align: center;
 }
 
 th {
-  background-color: #f0f0f0;
+  background-color: rgba(54, 50, 50, 0.835);
+  color: white;
 }
 
 tr.highlight td {
   font-weight: bold;
-  color: #007bff;
+  color: #e5ff00;
 }
 </style>
