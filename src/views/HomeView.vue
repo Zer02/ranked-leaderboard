@@ -28,13 +28,23 @@ export default {
   },
   methods: {
     initMap() {
-      this.map = L.map('map').setView([40.7128, -74.006], 12);
+      this.map = L.map('map').setView([40.84028258650481, -73.89492174552299], 12);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(this.map);
 
       // Add marker for a tennis court (Central Park, NYC)
       this.addMarker([40.785091, -73.968285], 'Central Park Tennis Courts', 'Central Park Tennis Courts', this.topPlayers);
+
+      this.addMarker([40.84028258650481, -73.89492174552299], 'Crotona Park Tennis Center', 'Crotona Park Tennis Center', this.topPlayers);
+
+      this.addMarker([40.87801390008082, -73.87783907227765], 'Oval Park Tennis Courts', 'Oval Park Tennis Courts', this.topPlayers);
+
+      this.addMarker([40.89086962874917, -73.8928386675601], 'Van Cortlandt Park Tennis Courts', 'Van Cortlandt Park Tennis Courts', this.topPlayers);
+
+      this.addMarker([40.92609570209264, -73.87923773969872], 'Tibbetts Brook Park Tennis Courts', 'Tibbetts Brook Park Tennis Courts', this.topPlayers);
+
+      this.addMarker([40.84980841358763, -73.82318750318782], 'Pelham Bay Park Tennis Courts', 'Pelham Bay Park Tennis Courts', this.topPlayers);
     },
     addMarker(coords, title, courtName, leaderboardData) {
       const marker = L.marker(coords).addTo(this.map);
