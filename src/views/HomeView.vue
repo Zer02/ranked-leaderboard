@@ -47,6 +47,8 @@ export default {
       this.addMarker([40.84980841358763, -73.82318750318782], 'Pelham Bay Park Tennis Courts', 'Pelham Bay Park Tennis Courts', this.topPlayers);
 
       this.addMarker([40.8248605177867, -73.93575721621467], 'Frederick Johnson Tennis Courts', 'Frederick Johnson Tennis Courts', this.topPlayers);
+
+      this.addMarker([40.95201284672247, -73.89739381918628], 'Trevor Park Tennis Courts', 'Trevor Park Tennis Courts', this.topPlayers);
     },
     addMarker(coords, title, courtName, leaderboardData) {
       const marker = L.marker(coords).addTo(this.map);
