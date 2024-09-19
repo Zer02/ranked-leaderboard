@@ -51,6 +51,8 @@ export default {
       this.addMarker([40.95201284672247, -73.89739381918628], 'Trevor Park Tennis Courts', 'Trevor Park Tennis Courts', this.topPlayers);
 
       this.addMarker([40.87386300854456, -73.84016042049983], 'Haffen Park Tennis Courts', 'Haffen Park Tennis Courts', this.topPlayers);
+
+      this.addMarker([40.86858264472611, -73.7931027652295], 'Orchard Beach', 'Orchard Beach', this.topPlayers);
     },
     addMarker(coords, title, courtName, leaderboardData) {
       const marker = L.marker(coords).addTo(this.map);
