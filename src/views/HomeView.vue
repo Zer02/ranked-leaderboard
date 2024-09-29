@@ -53,6 +53,9 @@ export default {
       this.addMarker([40.87386300854456, -73.84016042049983], 'Haffen Park Tennis Courts', 'Haffen Park Tennis Courts', this.topPlayers);
 
       this.addMarker([40.86858264472611, -73.7931027652295], 'Orchard Beach', 'Orchard Beach', this.topPlayers);
+
+      this.addMarker([40.84799799124556, -73.94628670072545], 'Fort Washington Park', 'Fort Washington Park', this.topPlayers);
+
     },
     addMarker(coords, title, courtName, leaderboardData) {
       const marker = L.marker(coords).addTo(this.map);
