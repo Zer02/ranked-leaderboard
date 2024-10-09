@@ -56,6 +56,8 @@ export default {
 
       this.addMarker([40.84799799124556, -73.94628670072545], 'Fort Washington Park', 'Fort Washington Park', this.topPlayers);
 
+      this.addMarker([40.89595441574829, -73.87932418934814], 'Indian Field', 'Indian Field', this.topPlayers);
+
     },
     addMarker(coords, title, courtName, leaderboardData) {
       const marker = L.marker(coords).addTo(this.map);
