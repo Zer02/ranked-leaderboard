@@ -1,12 +1,8 @@
-// Define initial player ratings
-let playerRatings = {
-  player1: { rating: 1200, volatility: 0.06, activity: 1 },
-  player2: { rating: 1000, volatility: 0.06, activity: 1 },
-  // Add more players as needed
-};
+// Player Ratings Object (to be passed from external files)
+export let playerRatings = {};
 
 // Match result function
-function recordMatch(winner, loser) {
+export function recordMatch(winner, loser) {
   const KFactor = 32; // Base K-Factor
   const maxRatingDiff = 400; // Maximum rating difference for K-Factor adjustment
   const minActivity = 0.5; // Minimum activity level for rating change
@@ -89,6 +85,3 @@ function recordMatch(winner, loser) {
     )} (${loserRatingChange.toFixed(2)})`
   );
 }
-
-// Example usage
-recordMatch("player1", "player2");
