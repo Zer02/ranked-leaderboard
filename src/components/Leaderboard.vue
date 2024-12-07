@@ -33,6 +33,8 @@
 </template>
 
 <script>
+import { saveTournament, loadTournament, onTournamentChange } from '../firebaseUtils';
+
 export default {
   data() {
     return {
@@ -45,9 +47,21 @@ export default {
       return this.players.slice().sort((a, b) => b.elo - a.elo);
     },
   },
-  mounted() {
-    // Retrieve players data from local storage or generate new data if it doesn't exist
-    this.loadPlayers();
+  async mounted() {
+    // // Retrieve players data from local storage or generate new data if it doesn't exist
+    // this.loadPlayers();
+    const savedPlayers = await loadTournament(this.courtId);
+    if (savedPlayers.length > 0) {
+      this.players = savedPlayers;
+    } else {
+      this.generatePlayers(); // Generate players if no data exists
+      await saveTournament(this.courtId, this.players); // Save initial players to Firestore
+    }
+
+    // Listen for updates from Firestore
+    this.unsubscribe = onTournamentChange(this.courtId, (updatedPlayers) => {
+      this.players = updatedPlayers;
+    });
   },
   methods: {
     showPlayerPopup(player) {
@@ -103,7 +117,7 @@ export default {
       // Save new players data to local storage
       localStorage.setItem('players', JSON.stringify(this.players));
     },
-    simulateMatch() {
+    async simulateMatch() {
       // Create a copy of players array to avoid modifying the original array
       const playersCopy = [...this.players];
 
@@ -155,7 +169,14 @@ export default {
         // Add players to the set of played players
         playedPlayers.add(player);
         playedPlayers.add(opponent);
+
       });
+
+      // Your logic to simulate and update ELO rankings
+      this.updatePlayersAfterMatch(); 
+
+      // Save the updated players list
+      await saveTournament(this.courtId, this.players);
 
       // Save updated players data to local storage
       localStorage.setItem('players', JSON.stringify(this.players));
