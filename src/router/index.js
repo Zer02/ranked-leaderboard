@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Leaderboard from "@/components/Leaderboard.vue";
+import Leaderboard2 from '@/components/Leaderboard-2.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,6 +15,11 @@ const router = createRouter({
       path: "/leaderboard",
       name: "leaderboard",
       component: Leaderboard,
+    },
+    {
+      path: "/leaderboard2",
+      name: "Leaderboard2",
+      component: Leaderboard2,
     },
     {
       path: "/about",
