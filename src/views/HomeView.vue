@@ -8,7 +8,7 @@
 <script>
 import L from "leaflet";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase"; // Ensure you correctly import your Firebase setup here
+import { db } from "../firebase/firebase.js"; 
 import LeaderboardPopup from "../components/LeaderboardPopup.vue";
 
 export default {
