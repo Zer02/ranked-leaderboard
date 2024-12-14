@@ -1,6 +1,5 @@
 <template>
   <div class="leaderboard">
-    <!-- <h2>Leaderboard</h2> -->
     <div class="button-container">
       <button @click="simulateMatch" class="button">Simulate Match</button>
       <button @click="randomizePlayers" class="button">Randomize Players</button>
@@ -13,7 +12,6 @@
           <th>ELO</th>
           <th>Matches Played</th>
           <th>Wins</th>
-          <!-- <th>Losses</th> -->
           <th>Win Percentage</th>
         </tr>
       </thead>
@@ -24,7 +22,6 @@
           <td>{{ player.elo }}</td>
           <td>{{ player.matchesPlayed }}</td>
           <td>{{ player.wins }}</td>
-          <!-- <td>{{ player.losses }}</td> -->
           <td>{{ player.winPercentage }}%</td>
         </tr>
       </tbody>
@@ -46,16 +43,11 @@ export default {
     },
   },
   mounted() {
-    // Retrieve players data from local storage or generate new data if it doesn't exist
     this.loadPlayers();
   },
   methods: {
-    showPlayerPopup(player) {
-      this.$emit('show-player-popup', player);
-    },
     loadPlayers() {
-      // Load players from local storage or generate new data
-      const storedPlayers = localStorage.getItem('players');
+      const storedPlayers = localStorage.getItem("players");
       if (storedPlayers) {
         this.players = JSON.parse(storedPlayers);
       } else {
@@ -63,107 +55,84 @@ export default {
       }
     },
     generatePlayers() {
-      // Unique adjectives and objects for random names
-      const adjectives = ['Fast', 'Strong', 'Brave', 'Swift', 'Clever', 'Gentle', 'Fierce', 'Wise', 'Noble', 'Sly'];
-      const objects = ['Tiger', 'Lion', 'Eagle', 'Wolf', 'Bear', 'Fox', 'Hawk', 'Panther', 'Shark', 'Dragon'];
+      const adjectives = ["Fast", "Strong", "Brave", "Swift", "Clever", "Gentle", "Fierce", "Wise", "Noble", "Sly"];
+      const objects = ["Tiger", "Lion", "Eagle", "Wolf", "Bear", "Fox", "Hawk", "Panther", "Shark", "Dragon"];
 
-      // Shuffle the arrays to ensure randomness
       adjectives.sort(() => Math.random() - 0.5);
       objects.sort(() => Math.random() - 0.5);
 
-      // Generate 10 random players
       this.players = Array.from({ length: 10 }, (_, index) => {
         const name = `${adjectives[index]} ${objects[index]}`;
-        const startingElo = 1000; // Starting ELO
-        const matchesPlayed = Math.floor(Math.random() * 100); // Random matches played between 0 and 100
-        const wins = Math.floor(Math.random() * matchesPlayed); // Random wins between 0 and matchesPlayed
+        const startingElo = 1000;
+        const matchesPlayed = Math.floor(Math.random() * 100);
+        const wins = Math.floor(Math.random() * matchesPlayed);
 
-        // Calculate ELO based on matches played and wins
-        const elo = startingElo + (matchesPlayed * 10) + (wins * 20);
-
-        const losses = matchesPlayed - wins; // Calculate losses
-        const winPercentage = (matchesPlayed === 0 ? 0 : (wins / matchesPlayed) * 100).toFixed(2); // Calculate win percentage
+        const elo = startingElo + matchesPlayed * 10 + wins * 20;
+        const losses = matchesPlayed - wins;
+        const winPercentage = matchesPlayed === 0 ? 0 : ((wins / matchesPlayed) * 100).toFixed(2);
 
         return {
           id: index + 1,
-          name: name,
-          elo: elo,
-          matchesPlayed: matchesPlayed,
-          wins: wins,
-          losses: losses,
-          winPercentage: winPercentage,
+          name,
+          elo,
+          matchesPlayed,
+          wins,
+          losses,
+          winPercentage,
         };
       });
-      // Save players data to local storage
-      localStorage.setItem('players', JSON.stringify(this.players));
+
+      localStorage.setItem("players", JSON.stringify(this.players));
     },
     randomizePlayers() {
-      // Randomize players data
       this.generatePlayers();
-      // Save new players data to local storage
-      localStorage.setItem('players', JSON.stringify(this.players));
     },
     simulateMatch() {
-      // Create a copy of players array to avoid modifying the original array
       const playersCopy = [...this.players];
 
-      // Shuffle the players array to ensure randomness
       playersCopy.sort(() => Math.random() - 0.5);
 
-      // Keep track of players who have already played in the current round
       const playedPlayers = new Set();
 
-      // Simulate matches
       playersCopy.forEach((player) => {
         if (playedPlayers.has(player)) {
-          return; // Skip if player has already played in the current round
+          return;
         }
 
-        // Find an opponent for the player
         let opponentIndex = Math.floor(Math.random() * playersCopy.length);
         while (playedPlayers.has(playersCopy[opponentIndex]) || playersCopy[opponentIndex] === player) {
           opponentIndex = Math.floor(Math.random() * playersCopy.length);
         }
         const opponent = playersCopy[opponentIndex];
 
-        // Ensure there is always a winner
-        let outcome = Math.random() < 0.5 ? 1 : 0; // 50% chance of player winning, 50% chance of opponent winning
-        if (outcome === 0) {
-          outcome = 1; // Change outcome to 1 (player wins) if it's 0 (opponent wins)
-        }
+        const playerWins = Math.random() < 0.5;
 
-        // Calculate expected scores
         const expectedScorePlayer = 1 / (1 + 10 ** ((opponent.elo - player.elo) / 400));
         const expectedScoreOpponent = 1 / (1 + 10 ** ((player.elo - opponent.elo) / 400));
 
-        // Update ELO based on match outcome
-        const kFactor = 32; // Adjust this for desired sensitivity to score changes
-        player.elo = Math.floor(player.elo + kFactor * (outcome - expectedScorePlayer));
-        opponent.elo = Math.floor(opponent.elo + kFactor * ((1 - outcome) - expectedScoreOpponent));
+        const kFactor = 32;
+        player.elo = Math.floor(player.elo + kFactor * ((playerWins ? 1 : 0) - expectedScorePlayer));
+        opponent.elo = Math.floor(opponent.elo + kFactor * ((playerWins ? 0 : 1) - expectedScoreOpponent));
 
-        // Update other stats (matches played, wins, losses, win percentage)
         player.matchesPlayed++;
-        player.wins += outcome;
-        player.losses += 1 - outcome;
+        player.wins += playerWins ? 1 : 0;
+        player.losses += playerWins ? 0 : 1;
         player.winPercentage = ((player.wins / player.matchesPlayed) * 100).toFixed(2);
 
         opponent.matchesPlayed++;
-        opponent.wins += 1 - outcome;
-        opponent.losses += outcome;
+        opponent.wins += playerWins ? 0 : 1;
+        opponent.losses += playerWins ? 1 : 0;
         opponent.winPercentage = ((opponent.wins / opponent.matchesPlayed) * 100).toFixed(2);
 
-        // Add players to the set of played players
         playedPlayers.add(player);
         playedPlayers.add(opponent);
       });
 
-      // Save updated players data to local storage
-      localStorage.setItem('players', JSON.stringify(this.players));
-    }
+      localStorage.setItem("players", JSON.stringify(this.players));
+    },
   },
 };
 </script>
-
 
 <style scoped>
 .leaderboard {
