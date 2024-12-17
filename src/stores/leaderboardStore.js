@@ -1,4 +1,3 @@
-// stores/leaderboardStore.js
 import { defineStore } from "pinia";
 
 export const useLeaderboardStore = defineStore("leaderboardStore", {
@@ -77,11 +76,22 @@ export const useLeaderboardStore = defineStore("leaderboardStore", {
       localStorage.setItem("players", JSON.stringify(this.players));
     },
 
-    randomizePlayers() {
-      this.generatePlayers();
-    },
+    randomizePlayers() {    
+      this.generatePlayers(); // Regenerate players
+    
+      // Create a new reference for players to ensure reactivity
+      this.players = [...this.players]; // Spread operator creates a new array reference
+    
+      // Sync the changes with localStorage
+      localStorage.setItem("players", JSON.stringify(this.players));
+    },    
 
     simulateMatch() {
+      if (!this.players || this.players.length < 2) {
+        console.error("Not enough players to simulate a match.");
+        return;
+      }
+
       const playersCopy = [...this.players];
       playersCopy.sort(() => Math.random() - 0.5);
 
@@ -108,8 +118,8 @@ export const useLeaderboardStore = defineStore("leaderboardStore", {
         const expectedScoreOpponent =
           1 / (1 + 10 ** ((player.elo - opponent.elo) / 400));
 
-        const kFactor = 32;
-        player.elo = Math.floor(
+        const kFactor = 50;
+        player.elo = Math.round(
           player.elo + kFactor * ((playerWins ? 1 : 0) - expectedScorePlayer)
         );
         opponent.elo = Math.floor(
@@ -137,8 +147,8 @@ export const useLeaderboardStore = defineStore("leaderboardStore", {
         playedPlayers.add(opponent);
       });
 
-      this.players = playersCopy; // Update the store's state
-      localStorage.setItem("players", JSON.stringify(this.players));
+      this.players = [...playersCopy]; // Update the state
+      localStorage.setItem("players", JSON.stringify(this.players)); // Sync with localStorage
     },
   },
 });

@@ -30,7 +30,8 @@
 </template>
 
 <script>
-import { useLeaderboardStore } from '@/stores/leaderboardStore';
+import { computed } from "vue";
+import { useLeaderboardStore } from "@/stores/leaderboardStore";
 
 export default {
   setup() {
@@ -39,8 +40,13 @@ export default {
     // Automatically load players when the component is mounted
     leaderboardStore.loadPlayers();
 
+    // Create a computed property for ranked players
+    const rankedPlayers = computed(() => {
+      return leaderboardStore.players.slice().sort((a, b) => b.elo - a.elo);
+    });
+
     return {
-      rankedPlayers: leaderboardStore.rankedPlayers,
+      rankedPlayers,
       simulateMatch: leaderboardStore.simulateMatch,
       randomizePlayers: leaderboardStore.randomizePlayers,
     };
