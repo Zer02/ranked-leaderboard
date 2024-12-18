@@ -1,13 +1,15 @@
+// src/stores/leaderboardStore.js
 import { defineStore } from "pinia";
 
 export const useLeaderboardStore = defineStore("leaderboardStore", {
   state: () => ({
     players: [],
+    surfaces: ["hard", "clay", "grass"], // Possible surfaces
   }),
 
   getters: {
     rankedPlayers(state) {
-      // Sort players by ELO in descending order
+      // Sort players by Elo in descending order
       return state.players.slice().sort((a, b) => b.elo - a.elo);
     },
   },
@@ -51,6 +53,8 @@ export const useLeaderboardStore = defineStore("leaderboardStore", {
       adjectives.sort(() => Math.random() - 0.5);
       objects.sort(() => Math.random() - 0.5);
 
+      const surfaces = this.surfaces;
+
       this.players = Array.from({ length: 10 }, (_, index) => {
         const name = `${adjectives[index]} ${objects[index]}`;
         const startingElo = 1000;
@@ -66,6 +70,8 @@ export const useLeaderboardStore = defineStore("leaderboardStore", {
           id: index + 1,
           name,
           elo,
+          surfacePreference:
+            surfaces[Math.floor(Math.random() * surfaces.length)], // Random surface preference
           matchesPlayed,
           wins,
           losses,
@@ -76,15 +82,11 @@ export const useLeaderboardStore = defineStore("leaderboardStore", {
       localStorage.setItem("players", JSON.stringify(this.players));
     },
 
-    randomizePlayers() {    
-      this.generatePlayers(); // Regenerate players
-    
-      // Create a new reference for players to ensure reactivity
-      this.players = [...this.players]; // Spread operator creates a new array reference
-    
-      // Sync the changes with localStorage
+    randomizePlayers() {
+      this.generatePlayers();
+      this.players = [...this.players]; // Ensure reactivity
       localStorage.setItem("players", JSON.stringify(this.players));
-    },    
+    },
 
     simulateMatch() {
       if (!this.players || this.players.length < 2) {
@@ -93,40 +95,49 @@ export const useLeaderboardStore = defineStore("leaderboardStore", {
       }
 
       const playersCopy = [...this.players];
-      playersCopy.sort(() => Math.random() - 0.5);
+      playersCopy.sort(() => Math.random() - 0.5); // Shuffle players randomly
 
       const playedPlayers = new Set();
 
-      playersCopy.forEach((player) => {
-        if (playedPlayers.has(player)) {
-          return;
+      // Iterate over the players to pair them up
+      for (let i = 0; i < playersCopy.length; i++) {
+        const player = playersCopy[i];
+
+        // Skip if this player has already played
+        if (playedPlayers.has(player.id)) continue;
+
+        // Find an opponent who hasn't played yet
+        const opponentIndex = playersCopy.findIndex(
+          (p, index) => index !== i && !playedPlayers.has(p.id)
+        );
+
+        if (opponentIndex === -1) {
+          console.warn("Not enough opponents to form a match.");
+          break;
         }
 
-        let opponentIndex = Math.floor(Math.random() * playersCopy.length);
-        while (
-          playedPlayers.has(playersCopy[opponentIndex]) ||
-          playersCopy[opponentIndex] === player
-        ) {
-          opponentIndex = Math.floor(Math.random() * playersCopy.length);
-        }
         const opponent = playersCopy[opponentIndex];
 
+        // Determine match winner
         const playerWins = Math.random() < 0.5;
 
+        // Calculate expected scores
         const expectedScorePlayer =
           1 / (1 + 10 ** ((opponent.elo - player.elo) / 400));
         const expectedScoreOpponent =
           1 / (1 + 10 ** ((player.elo - opponent.elo) / 400));
 
-        const kFactor = 50;
+        // Adjust ELO using a K-factor
+        const kFactor = 100;
         player.elo = Math.round(
           player.elo + kFactor * ((playerWins ? 1 : 0) - expectedScorePlayer)
         );
-        opponent.elo = Math.floor(
+        opponent.elo = Math.round(
           opponent.elo +
             kFactor * ((playerWins ? 0 : 1) - expectedScoreOpponent)
         );
 
+        // Update match stats
         player.matchesPlayed++;
         player.wins += playerWins ? 1 : 0;
         player.losses += playerWins ? 0 : 1;
@@ -143,12 +154,14 @@ export const useLeaderboardStore = defineStore("leaderboardStore", {
           100
         ).toFixed(2);
 
-        playedPlayers.add(player);
-        playedPlayers.add(opponent);
-      });
+        // Mark both players as having played
+        playedPlayers.add(player.id);
+        playedPlayers.add(opponent.id);
+      }
 
-      this.players = [...playersCopy]; // Update the state
-      localStorage.setItem("players", JSON.stringify(this.players)); // Sync with localStorage
+      // Update state and sync with localStorage
+      this.players = [...playersCopy];
+      localStorage.setItem("players", JSON.stringify(this.players));
     },
   },
 });
