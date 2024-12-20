@@ -1,3 +1,4 @@
+<!-- src/components/LeaderboardPopup.vue -->
 <template>
   <div class="leaderboard-popup">
     <div class="leaderboard-header">
@@ -17,7 +18,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(player, index) in topPlayers" :key="player.id">
+          <tr v-for="(player, index) in rankedPlayers" :key="player.id">
             <td>{{ index + 1 }}</td>
             <td>{{ player.name }}</td>
             <td>{{ player.elo }}</td>
@@ -32,25 +33,32 @@
 </template>
 
 <script>
+import { computed, watch } from "vue";
+import { useLeaderboardStore } from "@/stores/leaderboardStore";
+
 export default {
-  props: {
-    topPlayers: {
-      type: Array,
-      required: true
-    },
-    showLeaderboardPopup: {
-      type: Boolean,
-      required: true
-    },
-    popupLatLng: {
-      type: Object,
-      required: true
-    },
-  },
-  methods: {
-    closeLeaderboard() {
-      this.$emit('close');
-    }
+  setup() {
+    const leaderboardStore = useLeaderboardStore();
+
+    // Automatically load players when the component is mounted
+    leaderboardStore.loadPlayers();
+
+    // Create a computed property for ranked players
+    const rankedPlayers = computed(() => {
+      return leaderboardStore.players.slice().sort((a, b) => b.elo - a.elo);
+    });
+
+    // Watch for changes to the leaderboardStore instance
+    watch(() => leaderboardStore.players, () => {
+      rankedPlayers.value = leaderboardStore.players.slice().sort((a, b) => b.elo - a.elo);
+    });
+
+    return {
+      rankedPlayers,
+      closeLeaderboard() {
+        this.$emit('close');
+      }
+    };
   }
 };
 </script>
