@@ -1,3 +1,4 @@
+<!-- src/components/Leaderboard.vue -->
 <template>
   <div class="leaderboard">
     <div class="button-container">

@@ -1,3 +1,4 @@
+<!-- src/views/HomeView.vue -->
 <template>
   <div>
     <div id="map"></div>
