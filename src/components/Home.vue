@@ -1,3 +1,4 @@
+<!-- src/components/Home.vue -->
 <script setup>
 defineProps({
   msg: {

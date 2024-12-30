@@ -1,3 +1,4 @@
+// src/firebase/firebaseUtils.js
 import {
   collection,
   doc,

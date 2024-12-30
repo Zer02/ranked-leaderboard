@@ -1,3 +1,4 @@
+<!-- src/App.vue -->
 <template>
   <header>
     <img alt="racket logo" class="logo" src="@/assets/marker-icon.png" width="125" height="125" />
