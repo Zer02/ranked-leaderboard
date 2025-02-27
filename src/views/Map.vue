@@ -9,6 +9,10 @@ import LeaderboardPopup from '@/components/LeaderboardPopup.vue';
 import { createApp } from 'vue';
 import { useLeaderboardStore } from '@/stores/leaderboardStore';
 
+// Import Leaflet marker images explicitly
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
 export default {
   data() {
     return {
@@ -108,17 +112,30 @@ export default {
       attribution: '© OpenStreetMap contributors',
     }).addTo(map);
 
-    // Add markers for each court
+    // Define a custom Leaflet marker icon
+    const customIcon = L.icon({
+      iconUrl: markerIcon,
+      shadowUrl: markerShadow,
+      iconSize: [25, 41], // Default Leaflet marker size
+      iconAnchor: [12, 41], // Adjusts where the icon points
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+
+    // Add markers for each court with the custom icon
     this.courts.forEach(court => {
-      const marker = L.marker([court.lat, court.lng]).addTo(map);
+      const marker = L.marker([court.lat, court.lng], { icon: customIcon }).addTo(map);
 
       // Create a div to hold the Vue component
       const popupContent = document.createElement('div');
 
+      // Get the top 5 players from the store
+      const top5Players = this.leaderboardStore.rankedPlayers.slice(0, 5);
+
       // Mount the LeaderboardPopup component to the div
       createApp(LeaderboardPopup, {
         courtName: court.name,
-        localRankings: this.leaderboardStore.rankedPlayers, // Use players from the store
+        localRankings: top5Players,
         courtId: court.id,
         onViewFullLeaderboard: this.handleViewFullLeaderboard,
       }).mount(popupContent);
