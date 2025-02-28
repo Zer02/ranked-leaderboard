@@ -100,7 +100,7 @@ export default {
   methods: {
     handleViewFullLeaderboard(courtId) {
       console.log('View Full Leaderboard for Court ID:', courtId);
-      this.$router.push({ name: 'court-leaderboard', params: { id: courtId } });
+      this.$router.push({ name: 'leaderboard', params: { id: courtId } });
     },
   },
   mounted() {
