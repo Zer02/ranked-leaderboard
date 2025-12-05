@@ -233,3 +233,142 @@ Integrate physical rackets with embedded chips or QR codes.
 
 Phase 3:
 Build DAO governance and prize pools — tournaments, staking, and sponsorship NFTs.
+
+### 12/5/25
+**And part of the smart contract for the league is that you can earn points as you accumulate them with the rackets you have. And each racket, the higher tier, the better for earning more points.**
+
+Exactly — now you’re layering in the tokenomics that make this not just a ranking system, but a play-to-earn sports protocol.
+
+Let’s build on your idea clearly.
+
+🧩 Core Concept: Skill = Equipment = Earnings
+
+You’ve created a proof-of-skill economy for tennis.
+
+Every racket NFT acts as a:
+
+Rank certificate (shows how skilled the player is),
+
+Earning multiplier (better racket = higher point yield),
+
+Tradable asset (can be staked, lent, or transferred).
+
+So, instead of a centralized league giving prizes, the smart contract pays out or accumulates LeaguePoints (or “SPIN Tokens”) based on verified matches and racket tier.
+
+⚙️ Smart Contract Architecture
+1. RacketNFT Contract
+
+Each racket is an ERC-721 or ERC-1155 NFT with metadata like:
+
+{
+  "name": "SPIN Racket #42",
+  "tier": "Silver",
+  "level": 3,
+  "boostMultiplier": 1.25,
+  "owner": "0x123...",
+  "wins": 14,
+  "losses": 5
+}
+
+
+Metadata fields:
+
+Tier: Bronze → Silver → Gold → Platinum → Diamond
+
+Multiplier: The higher the tier, the more $SPIN tokens earned per match.
+
+XP / Level: When a racket accumulates XP, it can evolve.
+
+2. LeagueMatch Contract
+
+This is where matches and rewards get handled.
+When two players play:
+
+function recordMatch(address player1, address player2, address winner, uint256 racket1, uint256 racket2) external {
+    // 1. Verify both players’ racket NFTs exist
+    // 2. Calculate base reward points (e.g. 100 per match)
+    // 3. Apply racket multipliers
+    // 4. Mint or assign SPIN tokens to the winner
+    // 5. Update racket metadata (XP, wins/losses)
+    // 6. Trigger tier upgrades if thresholds hit
+}
+
+
+Example reward logic:
+
+Bronze racket = 1.0x multiplier → earns 100 points
+
+Silver = 1.25x → earns 125 points
+
+Gold = 1.5x → earns 150 points
+
+You can even scale XP curves to make upgrading progressively harder (like an RPG).
+
+3. SPIN Token Contract
+
+Your ERC-20 (or equivalent Layer 2 token) used for:
+
+Match rewards (earned)
+
+Entry fees (spent)
+
+Governance (voting on league rules)
+
+Staking (locking tokens to host events, sponsor courts, etc.)
+
+Optional staking rule:
+Players can stake SPIN to enter tournaments; winners earn multipliers on top of base rewards.
+
+4. DAO Governance
+
+Holders of Racket NFTs or SPIN tokens can vote on:
+
+Match verification rules
+
+Court partnerships
+
+Prize pool distributions
+
+Seasonal resets or NFT upgrades
+
+The DAO also handles minting new rackets (maybe limited edition seasonal ones).
+
+💰 Tokenomics Loop
+
+Here’s the full cycle:
+
+Play matches → earn SPIN tokens.
+
+Upgrade rackets → increase multiplier → earn faster.
+
+Trade rackets → secondary market revenue for the DAO (royalty).
+
+Stake SPIN → join higher-tier tournaments or earn passive rewards.
+
+DAO Treasury uses transaction fees to fund community tournaments, new rackets, or IRL sponsorships.
+
+This mirrors Web3 gaming economies, but grounded in real athletic performance.
+
+🌍 Real-World Integration Example
+
+Imagine QR-coded rackets tied to your NFT:
+
+You scan the QR code before and after each match (to log results).
+
+LeagueMatch’s smart contract verifies both players’ scans and location (via oracles).
+
+Match result triggers an on-chain reward update.
+
+Your NFT metadata auto-updates with new stats, rank, and earnings.
+
+🔮 Big Picture
+
+This turns recreational tennis into a crypto-powered skill economy:
+
+No need for expensive leagues or club fees.
+
+Players earn value directly from verified competition.
+
+Equipment (rackets) becomes a digital identity asset tied to performance.
+
+The DAO gradually replaces traditional federations.
