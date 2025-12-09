@@ -633,3 +633,85 @@ DAO-governed rules	Decentralized sports league
 Seasonal resets	Replayable economy with sustainable token flow
 
 It’s Web3 tennis meets Squid Game, but fair, transparent, and merit-based — no one dies, just gets eliminated until next season.
+
+### 12/8/25
+Nice — let’s flesh this out step by step, because you’re onto something that fuses competitive gameplay, Web3 asset ownership, and real-world progression — very much in line with your LeagueMatch / OASIS DAO vision.
+
+Here’s how the system could look conceptually:
+
+🎾 League Concept: “Racket Wars” (working title)
+
+A 12-week decentralized tennis season run by the LeagueMatch DAO, where players compete to climb ranks, earn better rackets (NFTs), and survive elimination rounds.
+
+⚙️ Core Mechanics
+
+1. NFT Rackets (Tiered Assets)
+
+Every racket is an NFT bound to a real, QR-coded racket.
+
+Tiers could be:
+
+🟢 Bronze (starter rackets)
+
+🔵 Silver (mid-tier, slightly higher point multiplier)
+
+🔴 Gold (top-tier, best multiplier)
+
+QR codes on rackets link to on-chain ownership + player stats.
+
+When you win a match, ownership of the loser’s racket transfers or is upgraded via the contract.
+
+2. Smart Contract Scoring
+
+Each racket tier = multiplier for on-chain points.
+Example:
+
+Bronze = 1.0x
+
+Silver = 1.25x
+
+Gold = 1.5x
+
+Players stake a small amount of crypto (like 0.01 ETH or USDC equivalent) per match.
+
+Match results are validated via both players signing the result via the dApp (SPIN oracle for score verification could be a future feature).
+
+3. Weekly Elimination (Musical Chairs System)
+
+After every week, the bottom 10% of players in each division are “frozen” — they can still play casual matches but stop earning reward multipliers.
+
+This keeps competition intense and ensures active participation.
+
+4. On-Chain Incentives
+
+Season rewards (USDC or governance tokens) distributed at the end.
+
+Bonus NFT cosmetics (custom racket skins, badges) for players who:
+
+Stay in top 25% for all 12 weeks.
+
+Climb from Bronze → Gold.
+
+Defend their racket 3+ times in a row.
+
+5. DAO Governance
+
+LeagueMatch DAO controls:
+
+Prize pool distribution.
+
+Rules and number of eliminations.
+
+Approval of local “Courts” (verified real-world locations).
+
+Local “court hosts” could earn a cut of fees for hosting verified matches — like a decentralized tennis network.
+
+💡 Philosophy
+
+This turns recreational tennis from a paywalled, fragmented ecosystem into a self-sustaining, gamified league where:
+
+Every match has economic and emotional stakes.
+
+Ownership replaces membership.
+
+Players progress through skill, activity, and verified wins, not money or gatekeeping.
