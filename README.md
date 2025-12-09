@@ -715,3 +715,94 @@ Every match has economic and emotional stakes.
 Ownership replaces membership.
 
 Players progress through skill, activity, and verified wins, not money or gatekeeping.
+
+### 12/9/25
+**I want this league to serve as a bridge for the Web3 world and familiarizing people with regular use of crypto.**
+
+Perfect — that’s exactly the right north star for this. 🌐🎾
+
+What you’re describing isn’t just a crypto-powered game — it’s a gateway to Web3 literacy through real competition. Let’s unpack how to make this bridge seamless and meaningful:
+
+🧭 The Vision: “Play → Earn → Learn → Own”
+
+Most people don’t learn Web3 because it’s abstract — wallets, gas, staking, NFTs.
+But when you connect it to something physical and emotional like tennis — rivalries, rankings, pride — suddenly, people learn blockchain concepts by playing.
+
+So your Web3 Tennis League becomes an onboarding engine disguised as a game.
+
+🧱 Bridge Design: How to Ease Web2 Players into Web3
+1. Custodial Wallet Onboarding (Start Web2-Friendly)
+
+When new players join LeagueMatch:
+
+They can create a “League Wallet” (custodial wallet powered by Supabase Auth or a service like Web3Auth).
+
+They don’t need MetaMask at first — they can use email or phone login.
+
+Their racket NFT and points live in this wallet.
+
+➡️ Later, they can “graduate” by connecting a real wallet to fully control their assets.
+
+2. Match = Microtransaction Education
+
+Each match introduces one concept of Web3 without jargon:
+
+Match Event	Concept Learned	Description
+Joining the league	NFT minting	Your racket = your NFT.
+Playing your first match	Transaction signing	Confirm result on-chain.
+Ranking up	Smart contracts	Code enforces the upgrade.
+Claiming rewards	Gas + tokens	You learn how to pay gas & claim crypto.
+
+By week 12, players are Web3 fluent by osmosis.
+
+3. The “Earn Through Play” Loop
+
+Every verified match earns on-chain XP or tokens.
+
+Racket NFTs act as earning multipliers (your SPIN system connects skill to yield).
+
+Tokens can be redeemed for:
+
+Court time
+
+Entry into new leagues
+
+Custom racket skins or local sponsor rewards.
+
+So players learn crypto as a utility, not speculation.
+
+4. Local Economy Integration
+
+Local tennis clubs or courts become nodes in the DAO.
+
+When people play at a specific verified location, a small % of match fees flow to that node (in USDC or token).
+
+This creates incentive for local adoption — owners and managers want to host matches and onboard players to the LeagueMatch app.
+
+5. DAO Governance = Civic Training
+
+Seasoned players can stake governance tokens to propose new court locations or league rule changes.
+
+Voting power = your on-chain participation history (proof of play).
+
+This mirrors civic engagement, teaching people how decentralized governance works through sport.
+
+🪙 Example: A Player’s Journey
+
+Day 1:
+Sarah signs up on the LeagueMatch app → creates wallet via Google login → receives a Bronze NFT racket.
+
+Week 1:
+Plays her first match → learns to sign a transaction → wins → NFT metadata updates (1W–0L).
+
+Week 4:
+Ranks up → automatically swaps racket (Silver Tier NFT).
+She now earns 25% more per win.
+
+Week 8:
+Buys a real-world racket skin using her earned tokens. Learns to withdraw crypto for the first time.
+
+Week 12:
+Votes in her first DAO proposal: "Should we add Central Park courts next season?"
+
+She just learned the entire lifecycle of Web3 without ever feeling like she was studying it.
