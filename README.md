@@ -1736,3 +1736,302 @@ The foundation for your full SPIN-powered Web3 league.
 Would you like me to take this next step and write out the upgraded version of the smart contract (the one that includes match verification, points, and on-chain rank upgrades automatically)?
 That’d be your “production-level” contract — deployable on Polygon mainnet after testing.
 
+### 12/19/25
+**Yeah, but just call it LeagueMatch**
+
+Great — I’ll call the contract LeagueMatch and give you a solid, production-minded starter smart contract you can deploy this season. It covers the core NFT + points + tier upgrade flow you need to run a season MVP, while keeping match verification simple (an oracle role you’ll replace with your SPIN oracle later).
+
+I’ll include:
+
+the full Solidity contract (ERC-721) named LeagueMatch
+
+a short function-by-function explanation
+
+recommended thresholds / multipliers you can tweak
+
+concrete steps to deploy & test on a testnet (Polygon Mumbai) before mainnet
+
+Solidity contract — LeagueMatch.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+/*
+  LeagueMatch.sol (MVP)
+  - ERC721 NFTs represent QR-coded rackets
+  - Tracks wins/losses/points/tier/active
+  - Owner (or oracle) records matches via recordMatch()
+  - Automatic tier upgrades when points thresholds crossed
+  - mintRacket is payable (season fee), funds withdrawable by owner
+  - Designed for Polygon (low gas) but generic Ethereum-compatible
+*/
+
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+
+contract LeagueMatch is ERC721URIStorage, Ownable {
+    using Counters for Counters.Counter;
+    Counters.Counter private _nextId;
+
+    // --- Events ---
+    event RacketMinted(uint256 indexed tokenId, address indexed owner, uint8 tier);
+    event MatchRecorded(uint256 indexed winnerId, uint256 indexed loserId, uint256 winnerPointsGained, uint256 loserPointsGained);
+    event RacketUpgraded(uint256 indexed tokenId, uint8 oldTier, uint8 newTier);
+    event OracleUpdated(address indexed newOracle);
+    event FundsWithdrawn(address indexed to, uint256 amount);
+
+    // --- Data structures ---
+    struct Racket {
+        uint256 wins;
+        uint256 losses;
+        uint256 points;       // accumulated points in current season
+        uint8 tier;           // 0=Bronze,1=Silver,2=Gold,3=Legend
+        bool active;          // active in-season (not eliminated)
+    }
+
+    mapping(uint256 => Racket) public racketStats;
+    mapping(address => uint256[]) public ownerTokens; // optional helper (not gas ideal for on-chain UX)
+
+    // Oracle address (initially owner) allowed to call recordMatch.
+    address public matchOracle;
+
+    // Season fee (wei). Example: 100 USD-ish equivalent in MATIC/ETH - set externally.
+    uint256 public seasonFee;
+
+    // Points thresholds for upgrades: Bronze->Silver, Silver->Gold, Gold->Legend
+    uint256[] public upgradeThresholds;
+
+    // Tier multipliers expressed as basis points (e.g., 10000 = 1.00x, 12500 = 1.25x)
+    uint256[] public tierMultiplierBPS;
+
+    constructor(uint256 _seasonFee) ERC721("LeagueMatch", "LM") {
+        _nextId.increment(); // start ids at 1
+        matchOracle = msg.sender;
+        seasonFee = _seasonFee;
+
+        // sensible defaults (tweak later via setter)
+        upgradeThresholds.push(1000);   // Bronze -> Silver
+        upgradeThresholds.push(3000);   // Silver -> Gold
+        upgradeThresholds.push(7000);   // Gold -> Legend
+
+        // multipliers: Bronze(1.0x), Silver(1.25x), Gold(1.5x), Legend(2.0x)
+        tierMultiplierBPS.push(10000);
+        tierMultiplierBPS.push(12500);
+        tierMultiplierBPS.push(15000);
+        tierMultiplierBPS.push(20000);
+    }
+
+    // --- Modifiers ---
+    modifier onlyOracle() {
+        require(msg.sender == matchOracle, "Only match oracle");
+        _;
+    }
+
+    // --- Admin / Oracle functions ---
+    function setMatchOracle(address _oracle) external onlyOwner {
+        matchOracle = _oracle;
+        emit OracleUpdated(_oracle);
+    }
+
+    function setSeasonFee(uint256 _fee) external onlyOwner {
+        seasonFee = _fee;
+    }
+
+    function setUpgradeThresholds(uint256[] calldata _thresholds) external onlyOwner {
+        require(_thresholds.length == 3, "Expect 3 thresholds");
+        delete upgradeThresholds;
+        for (uint i=0; i<_thresholds.length; i++) upgradeThresholds.push(_thresholds[i]);
+    }
+
+    function setTierMultipliers(uint256[] calldata _bps) external onlyOwner {
+        require(_bps.length == 4, "Expect 4 multipliers");
+        delete tierMultiplierBPS;
+        for (uint i=0; i<_bps.length; i++) tierMultiplierBPS.push(_bps[i]);
+    }
+
+    function withdraw(address payable to) external onlyOwner {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No funds");
+        to.transfer(balance);
+        emit FundsWithdrawn(to, balance);
+    }
+
+    // --- Minting: called when player pays season fee and is issued a racket ---
+    function mintRacket(address to, string calldata tokenURI) external payable returns (uint256) {
+        require(msg.value >= seasonFee, "Insufficient season fee");
+        uint256 tokenId = _nextId.current();
+        _nextId.increment();
+
+        _safeMint(to, tokenId);
+        _setTokenURI(tokenId, tokenURI);
+
+        Racket storage r = racketStats[tokenId];
+        r.wins = 0;
+        r.losses = 0;
+        r.points = 0;
+        r.tier = 0; // Bronze
+        r.active = true;
+
+        ownerTokens[to].push(tokenId);
+        emit RacketMinted(tokenId, to, r.tier);
+        return tokenId;
+    }
+
+    // --- Core: record a verified match result ---
+    // For MVP the matchOracle signs off on results. Later, you'll replace with multi-oracle / proof-of-play
+    function recordMatch(uint256 winnerId, uint256 loserId) external onlyOracle {
+        require(_exists(winnerId) && _exists(loserId), "Token not exist");
+        require(racketStats[winnerId].active && racketStats[loserId].active, "Inactive racket");
+
+        // Base points per match (tweakable)
+        uint256 basePoints = 100;
+
+        // Calculate multipliers
+        uint256 winnerMultiplier = tierMultiplierBPS[racketStats[winnerId].tier];
+        uint256 loserMultiplier = tierMultiplierBPS[racketStats[loserId].tier];
+
+        // Convert basis points math (winnerPoints = base * winnerMultiplier / 10000)
+        uint256 winnerPoints = (basePoints * winnerMultiplier) / 10000;
+        uint256 loserPoints = (basePoints * loserMultiplier) / 10000 / 4; // small consolation
+
+        // Simple upset bonus: if winner had lower points than loser, give extra
+        if (racketStats[winnerId].points < racketStats[loserId].points) {
+            // 25% bonus for upsets
+            winnerPoints = winnerPoints + (winnerPoints / 4);
+        }
+
+        // Update stats
+        racketStats[winnerId].wins += 1;
+        racketStats[winnerId].points += winnerPoints;
+
+        racketStats[loserId].losses += 1;
+        // Optionally, losers get small points (so keep playing is rewarded)
+        racketStats[loserId].points += loserPoints;
+
+        // Check upgrades (could be gas-heavy if many checks, but fine for MVP)
+        _maybeUpgrade(winnerId);
+        _maybeUpgrade(loserId);
+
+        emit MatchRecorded(winnerId, loserId, winnerPoints, loserPoints);
+    }
+
+    // --- Upgrade internal logic ---
+    function _maybeUpgrade(uint256 tokenId) internal {
+        uint8 currentTier = racketStats[tokenId].tier;
+        if (currentTier >= 3) return; // already Legend
+
+        uint256 nextThreshold = upgradeThresholds[currentTier];
+        if (racketStats[tokenId].points >= nextThreshold) {
+            uint8 newTier = currentTier + 1;
+            racketStats[tokenId].tier = newTier;
+            emit RacketUpgraded(tokenId, currentTier, newTier);
+        }
+    }
+
+    // --- Utility views ---
+    function getRacketStats(uint256 tokenId) external view returns (uint256 wins, uint256 losses, uint256 points, uint8 tier, bool active) {
+        require(_exists(tokenId), "not exist");
+        Racket storage r = racketStats[tokenId];
+        return (r.wins, r.losses, r.points, r.tier, r.active);
+    }
+
+    // Admin can mark rackets inactive (eliminated) or reactive
+    function setActive(uint256 tokenId, bool _active) external onlyOwner {
+        require(_exists(tokenId), "not exist");
+        racketStats[tokenId].active = _active;
+    }
+
+    // Optional helper to upgrade manually (admin/DAO) - for special rewards
+    function adminUpgradeRacket(uint256 tokenId, uint8 newTier) external onlyOwner {
+        require(_exists(tokenId), "not exist");
+        uint8 old = racketStats[tokenId].tier;
+        racketStats[tokenId].tier = newTier;
+        emit RacketUpgraded(tokenId, old, newTier);
+    }
+
+    // Fallbacks
+    receive() external payable {}
+    fallback() external payable {}
+}
+
+Explanation — what each part does (short)
+
+ERC721URIStorage: lets you attach a tokenURI (metadata) to each racket NFT — useful for QR-code linking to metadata (player, tier, stats endpoint).
+
+mintRacket (payable): players pay seasonFee to mint a Bronze racket. The contract stores points and tier.
+
+recordMatch (only callable by matchOracle): updates wins/losses and awards points. Includes an upset bonus if lower-point player beats higher-point one. Afterwards _maybeUpgrade() checks thresholds and upgrades tiers.
+
+upgradeThresholds & tierMultiplierBPS: arrays you can tune for progression speed and reward multipliers.
+
+setMatchOracle: sets the oracle (initially owner). For MVP, owner or a trusted admin signs match outcomes; later, swap for a decentralized verification flow.
+
+withdraw: allows contract owner to collect accumulated season fees (for logistics, prizes, ops).
+
+adminUpgradeRacket / setActive: used for special cases and admin-controlled events (prize assignment, elimination).
+
+Tuning suggestions (MVP → production)
+
+Base points: 100 per match is a simple number — tune to match your session frequency.
+
+Upgrade thresholds: default 1000 / 3000 / 7000 are example values (roughly 10 / 30 / 70 matches at base points). Adjust for expected season length and play frequency.
+
+Multipliers: Bronze 1.0x → Legend 2.0x is a clear step curve; tweak if you want slower/faster progression.
+
+Oracle: start with matchOracle = owner for season 0. Replace with multi-sig or off-chain oracle (e.g., match result signed by both players + upload of short video clip, or automated SPIN scoring oracle) to decentralize verification later.
+
+Deployment & testing plan (concrete steps)
+
+Local dev & tests
+
+Set up Hardhat or use Remix for quick start.
+
+Install OpenZeppelin dependencies (if using Hardhat).
+
+Write unit tests to simulate minting and recordMatch() and ensure upgrades trigger.
+
+Testnet deployment
+
+Deploy to Polygon Mumbai (recommended: low gas & good ecosystem).
+
+Set seasonFee to a small test value (e.g., 0.01 MATIC) for testing.
+
+Mint a few rackets with test accounts and call recordMatch() from the owner oracle.
+
+Integrate with your Nuxt + Supabase app
+
+Show token minting flow in-app: user pays seasonFee (via Web3 wallet or via custodial flow that deposits to contract).
+
+After mint, store tokenId + tokenURI metadata in Supabase for quick app queries.
+
+For MVP, do match submissions via admin UI which calls recordMatch() from the Oracle account.
+
+Start small IRL pilots
+
+Run a pilot with 50–200 players in one city. Use owner-oracle to verify matches and record them on-chain.
+
+Use data to tune basePoints, thresholds, and multipliers.
+
+Oracle improvement
+
+Move from centralized owner oracle → multi-sig oracles (trusted local refs) → fully automated SPIN oracle (players’ signed results + optional video proof + aggregated validators).
+
+Mainnet launch
+
+Deploy on Polygon mainnet after confident testing.
+
+Consider a small audit for critical parts (recordMatch logic, financial flows).
+
+Next technical steps I can do for you right now (pick one)
+
+Produce an upgraded contract that includes:
+
+Points math reflecting rank difference (richer SPIN formula)
+
+A redemptionMatch/last-chance function
+
+Seasonal snapshot & soulbound tournament pass mint
+
+Or, create a step-by-step Hardhat script that deploys LeagueMatch to Mumbai and runs automated test flows (mint, recordMatch, upgrade).
+
+Or, write the front-end Nuxt code snippet that connects to this contract (minting UI + calling recordMatch via oracle).
