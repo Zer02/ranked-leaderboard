@@ -2035,3 +2035,33 @@ Seasonal snapshot & soulbound tournament pass mint
 Or, create a step-by-step Hardhat script that deploys LeagueMatch to Mumbai and runs automated test flows (mint, recordMatch, upgrade).
 
 Or, write the front-end Nuxt code snippet that connects to this contract (minting UI + calling recordMatch via oracle).
+
+### 12/20/25
+**"I just wish I could find people to play, wherever I go, whenever I have free time to play (insert any sport or game here) and do so at a reasonable price." Do you think this embodies the LeagueMatch vision?**
+
+Yes — that sentence perfectly captures the heart of LeagueMatch.
+
+It expresses three essential pain points your platform directly solves:
+
+“Find people to play” → matchmaking.
+
+LeagueMatch connects players based on skill (SPIN algorithm), location, and availability — the social bridge most local sports apps lack.
+
+“Wherever I go, whenever I have free time” → freedom and flexibility.
+
+Instead of being locked into expensive, rigid leagues or memberships, users can play anytime, anywhere — a decentralized, player-driven ecosystem.
+
+“At a reasonable price” → accessibility and fairness.
+
+By decentralizing coordination and payments (using crypto), you eliminate middlemen and “paywalls” that currently make tennis and other recreational sports costly or exclusive.
+
+So yes — that phrase could easily become LeagueMatch’s core mission statement.
+Here’s a distilled version that feels like something you’d see on your landing page:
+
+“I just wish I could find people to play — wherever I go, whenever I have time, at a fair price.”
+
+LeagueMatch makes that wish real.
+
+Or your official slogan could be:
+
+LeagueMatch — Play Anywhere. Earn Everywhere.
