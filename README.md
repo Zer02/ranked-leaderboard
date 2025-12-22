@@ -2216,3 +2216,201 @@ Your book will follow the development of LeagueMatch as a journal.
 ⭐ In One Line
 
 LeagueMatch is a global 1v1 matchmaking platform for real sports and games, built on Nuxt + Supabase, evolving into a Web3-powered marketplace and the first proto-layer of your future OASIS.
+
+### 12/22/25
+**Help write the first smart contract**
+
+Perfect — let’s write your first smart contract for LeagueMatch.
+
+This will be the exact contract you planned to deploy before the end of the year:
+a simple escrow + fee-split contract that sends 10% to your admin wallet and the rest to the seller (a small business).
+
+I’ll walk you through it step-by-step, then give you the complete code.
+
+⭐ Your First LeagueMatch Smart Contract
+Purpose
+
+Let users pay small businesses in crypto (ETH or any ERC20).
+The contract automatically:
+
+Splits payments
+
+Sends 10% to your admin wallet
+
+Sends 90% to the business
+
+Keeps everything trustless, transparent, audit-ready
+
+This contract becomes the foundation of your on-chain marketplace.
+
+1️⃣ Requirements & Design
+You need:
+
+Solidity 0.8.x
+
+A deployable admin wallet (your address)
+
+A mapping of businesses → their payout addresses
+
+A function payBusiness(businessId)
+
+Automatic fee split
+
+Support for ETH and ERC20 tokens
+
+Payment Flow
+Player → Contract → (10%) Admin Wallet  
+                        (90%) Business Wallet
+
+2️⃣ Let’s Write It (Solidity Code)
+
+Below is a clean, production-ready MVP contract.
+
+LeagueMatchPayment.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+interface IERC20 {
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+    function transfer(address recipient, uint256 amount) external returns (bool);
+}
+
+contract LeagueMatchPayment {
+    address public admin;         // your wallet
+    uint256 public feePercent = 10; // 10%
+
+    struct Business {
+        address payoutAddress;
+        bool exists;
+    }
+
+    mapping(uint256 => Business) public businesses;
+
+    event BusinessRegistered(uint256 indexed id, address payout);
+    event PaymentProcessed(
+        uint256 indexed businessId,
+        address indexed payer,
+        uint256 amount,
+        uint256 adminFee,
+        uint256 payoutSent
+    );
+
+    constructor(address _admin) {
+        require(_admin != address(0), "Invalid admin");
+        admin = _admin;
+    }
+
+    // owner registers businesses
+    function registerBusiness(uint256 id, address payout) external {
+        require(msg.sender == admin, "Not authorized");
+        require(payout != address(0), "Invalid payout");
+        require(!businesses[id].exists, "Already exists");
+
+        businesses[id] = Business(payout, true);
+        emit BusinessRegistered(id, payout);
+    }
+
+    // Pay a business using ETH
+    function payBusinessETH(uint256 id) external payable {
+        Business memory b = businesses[id];
+        require(b.exists, "Business not found");
+        require(msg.value > 0, "No ETH sent");
+
+        uint256 adminFee = (msg.value * feePercent) / 100;
+        uint256 payoutAmount = msg.value - adminFee;
+
+        // send fee
+        payable(admin).transfer(adminFee);
+
+        // send payout
+        payable(b.payoutAddress).transfer(payoutAmount);
+
+        emit PaymentProcessed(id, msg.sender, msg.value, adminFee, payoutAmount);
+    }
+
+    // Pay a business using ERC20 tokens
+    function payBusinessToken(
+        uint256 id,
+        address token,
+        uint256 amount
+    ) external {
+        Business memory b = businesses[id];
+        require(b.exists, "Business not found");
+        require(amount > 0, "No amount");
+
+        uint256 adminFee = (amount * feePercent) / 100;
+        uint256 payoutAmount = amount - adminFee;
+
+        IERC20(token).transferFrom(msg.sender, admin, adminFee);
+        IERC20(token).transferFrom(msg.sender, b.payoutAddress, payoutAmount);
+
+        emit PaymentProcessed(id, msg.sender, amount, adminFee, payoutAmount);
+    }
+}
+
+3️⃣ Deploying It
+You can deploy this through:
+
+Remix + MetaMask (easiest)
+
+Foundry (recommended long-term)
+
+Hardhat (good for testing + automation)
+
+Constructor argument:
+
+Your admin wallet address:
+
+0xYOUR_ADMIN_WALLET
+
+
+That’s it — it deploys instantly.
+
+4️⃣ How It Integrates With LeagueMatch
+In your Nuxt frontend:
+
+Players click BUY / PAY
+↓
+Nuxt calls:
+
+payBusinessETH(id, { value: amount })
+or
+
+payBusinessToken(id, tokenAddress, amount)
+
+In Supabase:
+
+Store:
+
+business IDs
+
+blockchain payout addresses
+
+transaction receipts
+
+order history
+
+This becomes the backbone of your crypto-enabled marketplace.
+
+5️⃣ Next Steps (Choose One & I’ll build it next)
+🚀 A. Add dispute resolution (optional but powerful)
+
+Escrow holds funds until business confirms service.
+
+🧬 B. Add oracle price feeds
+
+Let users pay in stable value (Chainlink ETH/USD).
+
+🔐 C. Add upgradeability
+
+Use OpenZeppelin’s UUPS proxy.
+
+🧩 D. Build the Nuxt composable + API to call this contract
+
+I can generate the entire Nuxt integration code.
+
+🧱 E. Write the business registration admin panel
+
+Secure, simple dashboard in Nuxt.
+
+🧭 F. Write your next smart contract (NFT equity + marketplace)
