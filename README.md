@@ -2414,3 +2414,193 @@ I can generate the entire Nuxt integration code.
 Secure, simple dashboard in Nuxt.
 
 🧭 F. Write your next smart contract (NFT equity + marketplace)
+
+### 12/23/25
+**Why LeagueMatchPayment and not just LeagueMatch? Is this a child component of a bigger contract?**
+
+Great question — and yes, the naming implies a modular contract architecture that scales with your long-term vision.
+
+Let me explain exactly why I named it LeagueMatchPayment instead of just LeagueMatch, and how it fits into the bigger smart contract ecosystem you’ll eventually have.
+
+⭐ Why Not Name It LeagueMatch?
+
+Because:
+
+1️⃣ LeagueMatch is the whole ecosystem
+
+The name “LeagueMatch” should be reserved for the top-level protocol, not just the payment logic.
+
+Today you only have one feature on-chain (payments), but later you'll add:
+
+Player profiles
+
+Match verification
+
+On-chain rivalries
+
+ELO oracle updates
+
+Court staking
+
+NFT equity marketplace
+
+DAO governance (OASIS DAO layer)
+
+SPIN protocol upgrades
+
+On-chain quests / seasons / rewards
+
+Your future architecture looks like this:
+
+LeagueMatch (root contract / registry)
+ ├── LeagueMatchPayment (payment logic)
+ ├── LeagueMatchMatchmaking (SPIN)
+ ├── LeagueMatchProfiles (player registry)
+ ├── LeagueMatchMarketplace (NFTs, equity)
+ ├── LeagueMatchGovernance (DAO)
+ └── LeagueMatchCourtRegistry (court staking)
+
+
+If you call your very first tiny ERC20/ETH fee splitter "LeagueMatch", then later on you will regret it — it locks the name permanently for a contract that is NOT the protocol.
+
+⭐ 2. Payment is a module, not the protocol
+
+Right now you are building:
+
+The payment engine
+A standalone, reusable module at the heart of your marketplace.
+
+But it will not represent:
+
+The entire app
+
+The entire DAO
+
+The entire protocol
+
+The future metagame / OASIS layer
+
+Naming it LeagueMatchPayment shows exactly what it does.
+
+⭐ 3. It avoids future migration issues
+
+When later you build:
+
+contract LeagueMatch is Ownable { ... }
+
+
+…that main contract will reference multiple modules:
+
+address public payments;
+address public matchmaking;
+address public profiles;
+
+
+If you had already used the name LeagueMatch for your payment contract, then:
+
+LeagueMatch is stuck forever
+
+You can't reclaim that name
+
+You’d need awkward names like LeagueMatchV2 or LeagueMatchCore later
+
+Naming the payment module specifically avoids this future pain.
+
+⭐ 4. Yes — It is effectively a “child contract”
+
+Even if you haven’t built the parent yet.
+
+Eventually you'll have this:
+
+LeagueMatch.sol (the registry / root protocol)
+contract LeagueMatch {
+    address public paymentModule;
+    address public marketplaceModule;
+    address public matchmakingModule;
+}
+
+
+And you plug in the module like:
+
+paymentModule = new LeagueMatchPayment(admin);
+
+
+It's the same idea as:
+
+UniswapV3Core vs UniswapV3Factory
+
+OpenSea vs SeaPort
+
+AavePool vs AaveLendingPoolAddressesProvider
+
+ENS Registry vs ENSResolver, ENSRegistrar
+
+The root contract controls the ecosystem; subcontracts handle specific responsibilities.
+
+⭐ 5. Naming = Architecture Clarity
+
+By calling it LeagueMatchPayment:
+
+✔ Clear purpose
+
+Anyone reading it knows immediately what it does.
+
+✔ Easy to audit
+
+Auditors love clear naming.
+
+✔ Easy to scale
+
+Add more modules with consistent naming:
+
+LeagueMatchPayment.sol
+LeagueMatchMarketplace.sol
+LeagueMatchProfiles.sol
+LeagueMatchSPIN.sol
+LeagueMatchDAO.sol
+
+✔ Protects “LeagueMatch” for the final protocol
+
+This is the contract that will carry your legacy.
+
+⭐ If You Want the “Parent Contract,” I Can Write It Next
+
+I can generate:
+
+LeagueMatch.sol (Root Registry)
+
+Stores addresses of all sub-contracts
+
+Ownable by admin (you) or the DAO (later)
+
+Allows upgrading modules
+
+Acts as the single point Nuxt connects to
+
+It will look like:
+
+contract LeagueMatch {
+    address public admin;
+    address public paymentModule;
+
+    constructor(address _admin, address _payment) {
+        admin = _admin;
+        paymentModule = _payment;
+    }
+
+    function updatePayment(address newModule) external {
+        require(msg.sender == admin, "Not authorized");
+        paymentModule = newModule;
+    }
+}
+
+⭐ Want me to build the actual root contract next?
+
+If yes, I’ll deliver:
+
+✔ LeagueMatch.sol (parent)
+✔ How it plugs into LeagueMatchPayment
+✔ How Nuxt will read all modules from the root contract
+✔ How you structure your entire future smart contract system
+
+Just say: “Build the parent contract.”
