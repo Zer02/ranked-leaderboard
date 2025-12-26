@@ -2996,3 +2996,97 @@ Show how to version modules cleanly
 Build Foundry tests so this is real, not theoretical
 
 Just tell me where you want to go next.
+
+## Chat with GPT (#3) - History of the word computer
+### 12/26/25
+**When was the word "computer" first used? Who came up with it? And what did it refer to? Not machines, but humans, right?**
+
+Short answer: yes — it originally meant a human, not a machine.
+
+Here’s the clean historical breakdown.
+
+When was the word “computer” first used?
+
+The noun “computer” appears in English in the early 17th century, with the earliest recorded use around 1613–1614.
+
+It comes from the Latin computare
+com- (“together”) + putare (“to reckon, to think”).
+
+Before it was a noun, “to compute” was already a common verb meaning to calculate or to reckon.
+
+Who came up with the word?
+
+No single person invented it.
+
+It evolved naturally from:
+
+Latin → Medieval Latin → Early Modern English
+
+So instead of a named inventor, it’s a linguistic evolution — like “calculate” or “accountant.”
+
+What did “computer” originally refer to?
+A human being who calculates.
+
+For centuries, a computer was:
+
+A person whose job was to perform mathematical calculations
+
+Often working in astronomy, navigation, engineering, or finance
+
+Especially common in government, science, and military contexts
+
+Example meaning (17th–19th century):
+
+“A computer of eclipses”
+“A computer employed in the observatory”
+
+An important (and often missed) detail
+
+By the late 19th and early 20th century, many “computers” were:
+
+Women
+
+Employed to do repetitive, high-precision math
+
+Especially in astronomy, ballistics, and physics
+
+Famous examples:
+
+Harvard Computers (women astronomers)
+
+NASA’s human computers (Hidden Figures era)
+
+They weren’t assistants — they were the computation layer of civilization.
+
+When did “computer” start meaning a machine?
+
+1940s–1950s
+
+As electronic machines replaced human calculation labor
+
+The word shifted meaning, not replaced
+
+So:
+
+Same word
+
+New referent
+
+This is key:
+👉 The machine was named after the human role it automated.
+
+Why this matters (philosophically)
+
+The word “computer” reminds us:
+
+Machines didn’t invent computation
+
+Humans were the original processors
+
+Technology inherits language from labor
+
+In a sense:
+
+A computer was first a mind, then a tool, and now a system
+
+Which fits eerily well with where AI is headed.
