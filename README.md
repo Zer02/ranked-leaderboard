@@ -2779,3 +2779,220 @@ End-to-end integration.
 Just say the letter.
 You’re no longer “learning Web3” —
 You’re designing a protocol.
+
+### 12/25/25
+**Do I have to launch each of those child components as separate contracts? And do they call each other? If that's the case, should I deploy the root component first or last?**
+
+This is the right set of questions. You’re thinking like a protocol designer now, not an app dev.
+
+I’ll answer this precisely, without hand-waving.
+
+1️⃣ Do the “child components” have to be separate contracts?
+
+Short answer:
+👉 Yes — but only when they actually need to exist.
+
+You do NOT deploy everything upfront.
+
+Reality-based approach (what real protocols do):
+
+Each module is its own contract
+
+You only deploy:
+
+What you actively need
+
+When you need it
+
+Empty placeholders stay undeployed
+
+For LeagueMatch today, you only need:
+✔ LeagueMatchPayment
+✔ LeagueMatch (root)
+❌ Profiles (later)
+❌ SPIN (later)
+❌ Marketplace (later)
+❌ DAO (much later)
+
+
+Those others are conceptual modules, not obligations.
+
+2️⃣ Do the contracts call each other?
+They can — but they shouldn’t tightly depend on each other
+
+This is critical.
+
+There are three interaction patterns, and only one is correct for you right now.
+
+❌ Pattern A: Direct child-to-child calls (BAD early)
+Payment → Profiles
+Payment → Marketplace
+
+
+This creates:
+
+Circular dependencies
+
+Upgrade nightmares
+
+Broken deployments if one module changes
+
+Avoid this early.
+
+⚠️ Pattern B: Root-mediated calls (OK, but later)
+Frontend → LeagueMatch
+LeagueMatch → Payment
+LeagueMatch → SPIN
+
+
+This is good once logic becomes complex, but adds gas and complexity.
+
+✅ Pattern C: Root as Registry (BEST for now)
+
+This is what you’re doing.
+
+Frontend
+  ↓
+LeagueMatch (address registry)
+  ↓
+Payment / SPIN / Profiles (direct)
+
+
+Key idea:
+
+Frontend orchestrates
+
+Contracts stay dumb and isolated
+
+LeagueMatch only stores addresses
+
+This gives you:
+✔ Maximum flexibility
+✔ Minimal coupling
+✔ Easy upgrades
+✔ Fewer bugs
+
+3️⃣ So… do child contracts call each other?
+
+Right now: ❌ No
+Later (maybe): ⚠️ Only through interfaces
+
+Example (future, optional):
+interface IProfiles {
+    function isVerified(address user) external view returns (bool);
+}
+
+
+Then:
+
+IProfiles(profilesModule).isVerified(player);
+
+
+But you only add this when absolutely necessary.
+
+4️⃣ Deployment Order — THIS MATTERS
+✅ Correct Deployment Order (Important)
+1️⃣ Deploy child module FIRST
+
+Example:
+
+Deploy LeagueMatchPayment(admin)
+→ returns 0xPAYMENT
+
+2️⃣ Deploy root LAST
+Deploy LeagueMatch(admin, 0xPAYMENT)
+
+
+Why?
+
+Because:
+
+The root stores addresses
+
+It can’t store what doesn’t exist yet
+
+❌ Wrong Order
+Deploy LeagueMatch
+Deploy Payment
+
+
+Now you must:
+
+Call setters
+
+Risk misconfiguration
+
+Possibly expose root without valid modules
+
+5️⃣ What Happens When You Add New Modules Later?
+
+Example: SPIN contract (match verification).
+
+Deployment flow:
+1. Deploy LeagueMatchSPIN
+2. Call LeagueMatch.setSpinModule(address)
+3. Frontend auto-detects it
+
+
+No redeploy.
+No migrations.
+No breaking changes.
+
+This is exactly how Uniswap, ENS, and Aave evolved.
+
+6️⃣ Why This Architecture Is Perfect for LeagueMatch
+
+It matches your constraints:
+
+You’re Web2-first
+
+You’re solo-building
+
+You want optional Web3
+
+You want to avoid premature decentralization
+
+You want a DAO later, not now
+
+You want Zero → OASIS to feel realistic
+
+This architecture lets LeagueMatch:
+
+Start small
+
+Grow organically
+
+Survive mistakes
+
+Evolve into a protocol
+
+7️⃣ Mental Rule to Remember
+
+“Deploy logic when needed. Register it when ready.”
+
+That’s it.
+
+8️⃣ What I Recommend You Do Next (Very Specific)
+Immediate next steps:
+
+Deploy LeagueMatchPayment
+
+Deploy LeagueMatch
+
+Connect Nuxt to root only
+
+Ignore all other contracts for now
+
+If you want, next I can:
+
+Draw the exact call graph for LeagueMatch
+
+Show you how DAO takeover happens safely
+
+Write SPIN v0 contract (minimal, non-overengineered)
+
+Show how to version modules cleanly
+
+Build Foundry tests so this is real, not theoretical
+
+Just tell me where you want to go next.
